@@ -2,23 +2,14 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <title>Rizcake and Bakery</title>
+  <title>Rizcake & Bakery</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <!-- Tailwind + Google Fonts -->
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@300;400;600&family=Pacifico&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"/>
   <style>
-    :root{
-      --pink:#ffe4f1;
-      --cream:#fff8ee;
-      --lav:#e9dffc;
-      --mint:#d6f5e0;
-    }
-    body{ 
-      background:var(--cream); 
-      font-family:'Poppins',sans-serif; 
-    }
+    :root{ --pink:#ffe4f1; --cream:#fff8ee; --lav:#e9dffc; --mint:#d6f5e0; }
+    body{ background:var(--cream); font-family:'Poppins',sans-serif; }
     .font-heading{ font-family:'Playfair Display',serif; }
     .font-logo{ font-family:'Pacifico',cursive; }
     .pastel-pink{ background-color:var(--pink); }
@@ -32,8 +23,6 @@
     .swiper-slide img{ width:100%; height:100%; object-fit:cover; border-radius:.5rem; }
     @keyframes fadeIn{ from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
     .fade-in{ animation:fadeIn .6s ease forwards; }
-
-    /* ===== PERBAIKAN UNTUK HP ===== */
     @media (max-width: 640px){
       .swiper{ height:160px !important; }
       #modalUkuran .grid label{ font-size:.75rem; padding:.25rem .5rem; }
@@ -50,6 +39,7 @@
     heroTitle:"Pesan Kue Custom, Fresh & Handmade",
     heroSubtitle:"Kue ulang tahun, wedding, atau event spesial Anda. Dibuat dengan bahan berkualitas dan hati!",
     heroImg:"https://source.unsplash.com/600x400?birthday-cake",
+    heroBg:"https://source.unsplash.com/1600x600?pastel,cake",
     alamat:"Jl. Kue Manis No. 10, Kota Harapan",
     ig:"rizcake",
     tiktok:"rizcake",
@@ -64,6 +54,9 @@
   };
   let data = JSON.parse(JSON.stringify(defaultData));
   if(localStorage.webData) data = JSON.parse(localStorage.webData);
+
+  let keranjang = [];
+  let namaPemesan = "";
 </script>
 
 <!-- HEADER -->
@@ -73,12 +66,15 @@
       <img id="logoImg" src="" class="h-10 w-10 rounded-full object-cover">
       <span id="logoText" class="font-logo text-xl text-pink-700"></span>
     </div>
-    <nav class="hidden md:flex gap-6 text-sm font-medium">
+    <nav class="hidden md:flex gap-6 text-sm font-medium items-center">
       <a href="#home" class="hover:text-pink-700">Home</a>
       <a href="#produk" class="hover:text-pink-700">Menu Kue</a>
       <a href="#cara" class="hover:text-pink-700">Cara Pesan</a>
       <a href="#kontak" class="hover:text-pink-700">Kontak</a>
       <button id="btnAdmin" class="bg-white px-3 py-1 rounded-full text-xs border">Admin</button>
+      <button id="btnKeranjang" class="ml-2 bg-pink-700 text-white px-3 py-1 rounded-full text-xs relative">
+        🛒 <span id="jmlKeranjang" class="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-4 h-4 text-xs flex items-center justify-center">0</span>
+      </button>
     </nav>
     <button id="hamburger" class="md:hidden text-2xl">☰</button>
   </div>
@@ -89,11 +85,17 @@
   <a href="#cara" class="block">Cara Pesan</a>
   <a href="#kontak" class="block">Kontak</a>
   <button id="btnAdmin2" class="bg-white px-3 py-1 rounded-full text-xs border">Admin</button>
+  <button id="btnKeranjang2" class="bg-pink-700 text-white px-3 py-1 rounded-full text-xs relative">
+    🛒 <span id="jmlKeranjang2" class="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-4 h-4 text-xs flex items-center justify-center">0</span>
+  </button>
 </div>
 
-<!-- HERO -->
-<section id="home" class="pastel-mint">
-  <div class="max-w-6xl mx-auto px-4 py-16 grid md:grid-cols-2 items-center gap-6 fade-in">
+<!-- HERO dengan Background Banner -->
+<section id="home" class="relative pastel-mint overflow-hidden">
+  <div class="absolute inset-0 opacity-20">
+    <img id="heroBg" src="" class="w-full h-full object-cover">
+  </div>
+  <div class="relative max-w-6xl mx-auto px-4 py-16 grid md:grid-cols-2 items-center gap-6 fade-in">
     <div>
       <h1 id="heroTitle" class="font-heading text-4xl md:text-5xl text-pink-700 leading-tight"></h1>
       <p id="heroSubtitle" class="mt-4 text-gray-700"></p>
@@ -104,19 +106,32 @@
   </div>
 </section>
 
-<!-- BUBBLE CHAT -->
+<!-- BUBBLE CHAT + INPUT NAMA -->
 <section class="py-6 px-4 max-w-3xl mx-auto">
-  <div class="flex flex-col gap-2 text-sm">
-    <div class="bubble bubble-bot shadow font-medium">👋 Hai! Mau pesan kue custom?</div>
-    <div class="bubble bubble-user shadow">Boleh lihat menu-nya dulu?</div>
-    <div class="bubble bubble-bot shadow">Scroll ke bawah ya 😊</div>
+  <div id="chatBox" class="flex flex-col gap-2 text-sm">
+    <div class="bubble bubble-bot shadow font-medium">👋 Hai! Siapa nama Anda?</div>
+    <input id="inpNama" type="text" placeholder="Ketik nama Anda di sini..." class="self-end border rounded-lg px-3 py-2 w-64 max-w-full">
+    <button id="btnSimpanNama" class="self-end bg-pink-600 text-white rounded-lg px-4 py-2 mt-2 hover:bg-pink-700">Simpan</button>
+    <div id="chatAfterNama" class="hidden flex flex-col gap-2">
+      <div class="bubble bubble-user shadow"><span id="namaUser"></span></div>
+      <div class="bubble bubble-bot shadow">Mau lihat menu kue?</div>
+    </div>
   </div>
 </section>
 
-<!-- PRODUK -->
+<!-- PRODUK + TOMBOL TAMBAH KE KERANJANG -->
 <section id="produk" class="py-12 px-4 max-w-6xl mx-auto">
   <h2 class="font-heading text-3xl font-bold text-center mb-8 text-pink-700 fade-in">Menu Kue</h2>
   <div id="produkGrid" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 fade-in"></div>
+</section>
+
+<!-- KERANJANG BELANJA -->
+<section id="keranjang" class="py-12 px-4 max-w-4xl mx-auto hidden">
+  <h2 class="font-heading text-3xl font-bold text-center mb-6 text-pink-700 fade-in">Keranjang Belanja</h2>
+  <div id="isiKeranjang" class="space-y-4 fade-in"></div>
+  <div class="mt-6 text-right">
+    <button id="btnCheckout" class="bg-pink-600 text-white px-6 py-3 rounded-xl hover:bg-pink-700">Checkout →</button>
+  </div>
 </section>
 
 <!-- CARA PESAN -->
@@ -124,8 +139,8 @@
   <h2 class="font-heading text-3xl font-bold text-center mb-8 text-pink-700 fade-in">Cara Pemesanan</h2>
   <div class="grid md:grid-cols-3 gap-6 text-center fade-in">
     <div class="pastel-lav p-6 rounded-xl shadow-pastel"><div class="text-3xl mb-2">1️⃣</div><p>Pilih gambar kue favorit Anda</p></div>
-    <div class="pastel-mint p-6 rounded-xl shadow-pastel"><div class="text-3xl mb-2">2️⃣</div><p>Klik tombol <b>Pesan via WhatsApp</b></p></div>
-    <div class="pastel-pink p-6 rounded-xl shadow-pastel"><div class="text-3xl mb-2">3️⃣</div><p>Kirim detail & tunggu konfirmasi</p></div>
+    <div class="pastel-mint p-6 rounded-xl shadow-pastel"><div class="text-3xl mb-2">2️⃣</div><p>Klik tombol <b>Tambah ke Keranjang</b></p></div>
+    <div class="pastel-pink p-6 rounded-xl shadow-pastel"><div class="text-3xl mb-2">3️⃣</div><p>Checkout & kirim pesan via WhatsApp</p></div>
   </div>
 </section>
 
@@ -157,15 +172,29 @@
       <label class="cursor-pointer"><input type="radio" name="ukuran" value="20 cm" class="mr-2">20 cm</label>
       <label class="cursor-pointer"><input type="radio" name="ukuran" value="22 cm" class="mr-2">22 cm</label>
     </div>
+    <!-- INPUT NAMA PEMESAN -->
+    <div class="mb-4">
+      <label class="block text-sm font-medium text-gray-700 mb-1">Nama Pemesan</label>
+      <input id="inpNamaPemesan" type="text" placeholder="Ketik nama Anda" class="w-full border rounded-lg px-3 py-2">
+    </div>
     <div class="text-sm text-gray-600 mb-4">
       Bento = Rp 30.000 – 35.000<br>16 cm = Rp 40.000 – 50.000<br>18 cm = Rp 60.000 – 75.000<br>20 cm = Rp 80.000 – 100.000<br>22 cm = Rp 100.000 – 200.000
     </div>
     <div class="flex gap-3">
-      <button id="btnPesanModal" class="flex-1 bg-pink-600 text-white py-3 rounded-xl hover:bg-pink-700">Pesan via WhatsApp</button>
+      <button id="btnTambahKeranjang" class="flex-1 bg-pink-600 text-white py-3 rounded-xl hover:bg-pink-700">Tambah ke Keranjang</button>
       <button id="btnBatalModal" class="flex-1 bg-gray-200 text-gray-800 py-3 rounded-xl hover:bg-gray-300">Batal</button>
     </div>
   </div>
 </div>
+
+<!-- KERANJANG BELANJA -->
+<section id="keranjang" class="py-12 px-4 max-w-4xl mx-auto hidden">
+  <h2 class="font-heading text-3xl font-bold text-center mb-6 text-pink-700 fade-in">Keranjang Belanja</h2>
+  <div id="isiKeranjang" class="space-y-4 fade-in"></div>
+  <div class="mt-6 text-right">
+    <button id="btnCheckout" class="bg-pink-600 text-white px-6 py-3 rounded-xl hover:bg-pink-700">Checkout →</button>
+  </div>
+</section>
 
 <!-- ADMIN PANEL -->
 <div id="adminPanel" class="hidden fixed bottom-4 right-4 bg-white rounded-xl shadow-lg p-4 w-80 text-sm max-h-[70vh] overflow-y-auto">
@@ -175,6 +204,7 @@
   <label class="block mb-1 font-medium">Hero Judul</label><input id="inpHeroTitle" class="w-full border rounded px-2 py-1 mb-2">
   <label class="block mb-1 font-medium">Hero Sub-judul</label><textarea id="inpHeroSub" class="w-full border rounded px-2 py-1 mb-2 text-xs" rows="2"></textarea>
   <label class="block mb-1 font-medium">Hero Gambar</label><input id="inpHeroImg" class="w-full border rounded px-2 py-1 mb-3">
+  <label class="block mb-1 font-medium">Hero Background Banner</label><input id="inpHeroBg" class="w-full border rounded px-2 py-1 mb-3">
   <label class="block mb-1 font-medium">Alamat Toko</label><textarea id="inpAlamat" class="w-full border rounded px-2 py-1 mb-2 text-xs" rows="2"></textarea>
   <label class="block mb-1 font-medium">Instagram (tanpa @)</label><input id="inpIG" class="w-full border rounded px-2 py-1 mb-2">
   <label class="block mb-1 font-medium">TikTok (tanpa @)</label><input id="inpTiktok" class="w-full border rounded px-2 py-1 mb-2">
@@ -188,19 +218,49 @@
 
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 <script>
+// ---------- DATA ----------
+const defaultData = {
+  logoText:"Rizcake & Bakery",
+  logoUrl:"https://source.unsplash.com/100x100?logo,cake",
+  heroTitle:"Pesan Kue Custom, Fresh & Handmade",
+  heroSubtitle:"Kue ulang tahun, wedding, atau event spesial Anda. Dibuat dengan bahan berkualitas dan hati!",
+  heroImg:"https://source.unsplash.com/600x400?birthday-cake",
+  heroBg:"https://source.unsplash.com/1600x600?pastel,cake",
+  alamat:"Jl. Kue Manis No. 10, Kota Harapan",
+  ig:"rizcake",
+  tiktok:"rizcake",
+  wa:"6288286558593",
+  produk:[
+    {nama:"Bento Cake Rainbow",gambar:["https://source.unsplash.com/400x400?cake","https://source.unsplash.com/400x400?rainbow+cake","https://source.unsplash.com/400x400?mini+cake"]},
+    {nama:"Black Forest 16 cm",gambar:["https://source.unsplash.com/400x400?black-forest","https://source.unsplash.com/400x400?cherry+cake","https://source.unsplash.com/400x400?forest"]},
+    {nama:"Red Velvet 18 cm",gambar:["https://source.unsplash.com/400x400?red-velvet","https://source.unsplash.com/400x400?velvet"]},
+    {nama:"Lapis Surabaya 20 cm",gambar:["https://source.unsplash.com/400x400?layer+cake","https://source.unsplash.com/400x400?indonesian+cake"]},
+    {nama:"Tiramisu Cake 22 cm",gambar:["https://source.unsplash.com/400x400?tiramisu","https://source.unsplash.com/400x400?coffee+cake","https://source.unsplash.com/400x400?italian+dessert"]}
+  ]
+};
+let data = JSON.parse(JSON.stringify(defaultData));
+if(localStorage.webData) data = JSON.parse(localStorage.webData);
+
+let keranjang = [];
+let namaPemesan = "";
+let imgActive = "";
+let idxActive = 0;
+
+// ---------- APPLY ----------
 function applyData(){
   document.getElementById('logoImg').src = data.logoUrl;
   document.getElementById('logoText').textContent = data.logoText;
   document.getElementById('heroTitle').textContent = data.heroTitle;
   document.getElementById('heroSubtitle').textContent = data.heroSubtitle;
   document.getElementById('heroImg').src = data.heroImg;
+  document.getElementById('heroBg').src = data.heroBg;
   document.getElementById('alamatToko').textContent = data.alamat;
   document.getElementById('igLink').href = `https://instagram.com/${data.ig}`;
   document.getElementById('tiktokLink').href = `https://tiktok.com/@${data.tiktok}`;
   document.getElementById('waLink').href = `https://wa.me/${data.wa}`;
   document.querySelectorAll('.logoF').forEach(el=>el.textContent=data.logoText);
   document.getElementById('tahun').textContent = new Date().getFullYear();
-  renderProduk();
+  renderProduk(); renderKeranjang();
 }
 applyData();
 
@@ -211,13 +271,25 @@ function renderProduk(){
       <img src="${k.gambar[0]}" class="w-full h-48 object-cover">
       <div class="p-4 flex-1 flex flex-col">
         <h3 class="font-bold text-pink-700 mb-2">${k.nama}</h3>
-        <button data-idx="${i}" class="btnPesan mt-auto bg-pink-600 text-white py-2 rounded-lg hover:bg-pink-700">Pesan via WhatsApp</button>
+        <button data-idx="${i}" class="btnPilih mt-auto bg-pink-600 text-white py-2 rounded-lg hover:bg-pink-700">Pilih & Tambah ke Keranjang</button>
       </div>
     </div>
   `).join('');
 }
 
-let swiper, idxActive;
+// ---------- NAMA PEMESAN DI BUBBLE ----------
+document.getElementById('btnSimpanNama').onclick = ()=>{
+  const val = document.getElementById('inpNama').value.trim();
+  if(!val) return alert("Nama tidak boleh kosong");
+  namaPemesan = val;
+  document.getElementById('namaUser').textContent = namaPemesan;
+  document.getElementById('chatAfterNama').classList.remove('hidden');
+  document.getElementById('inpNama').disabled = true;
+  document.getElementById('btnSimpanNama').disabled = true;
+};
+
+// ---------- MODAL & KERANJANG ----------
+let swiper;
 function bukaModal(idx){
   idxActive = idx;
   const k = data.produk[idx];
@@ -229,31 +301,70 @@ function bukaModal(idx){
   swiper = new Swiper(".mySwiper",{
     pagination:{el:".swiper-pagination",clickable:true},
     navigation:{nextEl:".swiper-button-next",prevEl:".swiper-button-prev"},
-    loop:true
+    loop:true,
+    on:{ slideChangeTransitionEnd:function(){
+      imgActive = swiper.slides[swiper.activeIndex].querySelector('img').src;
+    }}
   });
+  imgActive = k.gambar[0];
 }
 function tutupModal(){
   document.getElementById('modalUkuran').classList.add('hidden');
   document.getElementById('modalUkuran').classList.remove('grid');
 }
 document.addEventListener('click',e=>{
-  if(e.target.classList.contains('btnPesan')) bukaModal(+e.target.dataset.idx);
+  if(e.target.classList.contains('btnPilih')){
+    if(!namaPemesan){ alert("Silakan isi nama Anda dulu di bagian atas"); return; }
+    bukaModal(+e.target.dataset.idx);
+  }
 });
 document.getElementById('closeModal').onclick = tutupModal;
 document.getElementById('btnBatalModal').onclick = tutupModal;
 
-document.getElementById('btnPesanModal').onclick = ()=>{
+// ---------- TAMBAH KE KERANJANG ----------
+document.getElementById('btnTambahKeranjang').onclick = ()=>{
   const ukuran = document.querySelector('input[name="ukuran"]:checked').value;
   const k = data.produk[idxActive];
-  const pesan = `Halo, saya ingin memesan kue.
-* Nama Kue: ${k.nama}
-* Ukuran: ${ukuran}
-* Tambahan permintaan: ...`;
-  window.open(`https://wa.me/${data.wa}?text=${encodeURIComponent(pesan)}`,'_blank');
+  const item = {nama:k.nama, ukuran:ukuran, img:imgActive};
+  keranjang.push(item);
+  renderKeranjang();
+  document.getElementById('keranjang').classList.remove('hidden');
   tutupModal();
+  animasiMasuk();
 };
 
-// ADMIN
+// ---------- KERANJANG ----------
+function renderKeranjang(){
+  const div = document.getElementById('isiKeranjang');
+  if(keranjang.length===0){
+    div.innerHTML = '<p class="text-center text-gray-600">Keranjang kosong.</p>';
+    return;
+  }
+  div.innerHTML = keranjang.map((it,i)=>`
+    <div class="bg-white rounded-xl shadow-pastel p-4 flex items-center gap-4 fade-in">
+      <img src="${it.img}" class="w-20 h-20 object-cover rounded-lg">
+      <div class="flex-1">
+        <div class="font-bold text-pink-700">${it.nama}</div>
+        <div class="text-sm text-gray-600">Ukuran: ${it.ukuran}</div>
+      </div>
+      <button onclick="hapusItem(${i})" class="text-red-600 hover:underline text-sm">Hapus</button>
+    </div>
+  `).join('');
+}
+function hapusItem(i){ keranjang.splice(i,1); renderKeranjang(); }
+
+// ---------- CHECKOUT ----------
+document.getElementById('btnCheckout').onclick = ()=>{
+  if(keranjang.length===0) return alert("Keranjang masih kosong");
+  let pesan = `Halo, saya ${namaPemesan} ingin memesan:\n`;
+  keranjang.forEach((it,i)=>{
+    pesan += `${i+1}. *${it.nama}* - Ukuran ${it.ukuran}\n`;
+  });
+  pesan += "\n*Gambar terlampir sesuai preview.*";
+  window.open(`https://wa.me/${data.wa}?text=${encodeURIComponent(pesan)}`,'_blank');
+};
+
+// ---------- ADMIN ----------
 let adminMode = false;
 function cekAdmin(){
   const u = prompt("Username admin:");
@@ -273,6 +384,7 @@ function isiFormAdmin(){
   document.getElementById('inpHeroTitle').value = data.heroTitle;
   document.getElementById('inpHeroSub').value = data.heroSubtitle;
   document.getElementById('inpHeroImg').value = data.heroImg;
+  document.getElementById('inpHeroBg').value = data.heroBg;
   document.getElementById('inpAlamat').value = data.alamat;
   document.getElementById('inpIG').value = data.ig;
   document.getElementById('inpTiktok').value = data.tiktok;
@@ -285,6 +397,7 @@ document.getElementById('btnSimpanAdmin').onclick = ()=>{
   data.heroTitle = document.getElementById('inpHeroTitle').value.trim();
   data.heroSubtitle = document.getElementById('inpHeroSub').value.trim();
   data.heroImg = document.getElementById('inpHeroImg').value.trim();
+  data.heroBg = document.getElementById('inpHeroBg').value.trim();
   data.alamat = document.getElementById('inpAlamat').value.trim();
   data.ig = document.getElementById('inpIG').value.trim();
   data.tiktok = document.getElementById('inpTiktok').value.trim();
@@ -304,6 +417,15 @@ document.getElementById('btnResetAdmin').onclick = ()=>{
 document.getElementById('hamburger').onclick = ()=>{
   document.getElementById('mobileMenu').classList.toggle('hidden');
 };
+
+// ---------- ANIMASI ----------
+function animasiMasuk(){
+  document.querySelectorAll('.fade-in').forEach(el=>{
+    el.style.opacity="0"; el.style.transform="translateY(20px)";
+    setTimeout(()=>{el.style.transition="all .6s ease"; el.style.opacity="1"; el.style.transform="translateY(0)";},100);
+  });
+}
+animasiMasuk();
 </script>
 </body>
 </html>
