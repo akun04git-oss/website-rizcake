@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <title>Rizcake and Bakery</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Tailwind + Google Fonts -->
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@300;400;600&family=Pacifico&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"/>
@@ -24,22 +25,15 @@
     .pastel-lav{ background-color:var(--lav); }
     .pastel-mint{ background-color:var(--mint); }
     .shadow-pastel{ box-shadow:0 8px 30px -10px rgba(0,0,0,.12); }
-
-    /* ANIMATIONS */
-    .fade-in-up{ opacity:0; transform:translateY(20px); transition:all .6s ease; }
-    .fade-in-up.show{ opacity:1; transform:translateY(0); }
-    .card-hover{ transition:transform .3s ease,box-shadow .3s ease; }
-    .card-hover:hover{ transform:translateY(-4px) scale(1.02); box-shadow:0 12px 40px -10px rgba(244,114,182,.25); }
-    .ripple{ position:relative; overflow:hidden; }
-    .ripple::after{ content:""; position:absolute; inset:50%; width:0; height:0; border-radius:50%; background:rgba(255,255,255,.6); transform:translate(-50%,-50%); transition:width .4s,height .4s; }
-    .ripple:active::after{ width:200px; height:200px; }
-    @keyframes bounce{ 0%,100%{transform:scale(1)} 50%{transform:scale(1.25)} }
-    .badge-bounce{ animation:bounce .4s ease; }
-    .modal-scale{ transform:scale(.95); opacity:0; transition:transform .2s ease,opacity .2s ease; }
-    .modal-scale.show{ transform:scale(1); opacity:1; }
-
+    .bubble{ display:inline-block; padding:.5rem 1rem; border-radius:1rem; margin:.25rem 0; }
+    .bubble-user{ background:#d6f5e0; align-self:flex-end; }
+    .bubble-bot{ background:white; align-self:flex-start; }
     .swiper{ width:100%; height:220px; border-radius:.75rem; }
     .swiper-slide img{ width:100%; height:100%; object-fit:cover; border-radius:.5rem; }
+    @keyframes fadeIn{ from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+    .fade-in{ animation:fadeIn .6s ease forwards; }
+
+    /* ===== PERBAIKAN UNTUK HP ===== */
     @media (max-width: 640px){
       .swiper{ height:160px !important; }
       #modalUkuran .grid label{ font-size:.75rem; padding:.25rem .5rem; }
@@ -83,10 +77,8 @@
   function removeFromCart(idx){ cart=cart.filter(it=>it.idx!==idx); saveCart(); renderCartBadge(); }
   function renderCartBadge(){
     const total=cart.reduce((a,it)=>a+it.qty,0);
-    const badge=document.getElementById('cartBadge');
-    badge.textContent=total;
-    badge.classList.toggle('hidden',total===0);
-    if(total>0){ badge.classList.add('badge-bounce'); setTimeout(()=>badge.classList.remove('badge-bounce'),400); }
+    document.getElementById('cartBadge').textContent=total;
+    document.getElementById('cartBadge').classList.toggle('hidden',total===0);
   }
   function renderMiniCart(){
     const box=document.getElementById('miniCartBox');
@@ -116,31 +108,31 @@
     </div>
     <nav class="hidden md:flex gap-6 text-sm font-medium items-center">
       <a href="#home" class="hover:text-pink-700">Home</a>
-      <a href="#cara" class="hover:text-pink-700">Cara Pesan</a>
       <a href="#produk" class="hover:text-pink-700">Menu Kue</a>
+      <a href="#cara" class="hover:text-pink-700">Cara Pesan</a>
       <a href="#kontak" class="hover:text-pink-700">Kontak</a>
-      <button id="btnCart" class="relative ripple bg-white px-3 py-1 rounded-full text-xs border">Keranjang
+      <button id="btnCart" class="relative bg-white px-3 py-1 rounded-full text-xs border">Keranjang
         <span id="cartBadge" class="absolute -top-1 -right-1 bg-pink-600 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center hidden"></span>
       </button>
-      <button id="btnAdmin" class="ripple bg-white px-3 py-1 rounded-full text-xs border">Admin</button>
+      <button id="btnAdmin" class="bg-white px-3 py-1 rounded-full text-xs border">Admin</button>
     </nav>
     <button id="hamburger" class="md:hidden text-2xl">☰</button>
   </div>
 </header>
 <div id="mobileMenu" class="hidden md:hidden pastel-pink px-4 pb-4 text-sm space-y-2">
   <a href="#home" class="block">Home</a>
-  <a href="#cara" class="block">Cara Pesan</a>
   <a href="#produk" class="block">Menu Kue</a>
+  <a href="#cara" class="block">Cara Pesan</a>
   <a href="#kontak" class="block">Kontak</a>
-  <button id="btnCart2" class="relative ripple bg-white px-3 py-1 rounded-full text-xs border">Keranjang
+  <button id="btnCart2" class="bg-white px-3 py-1 rounded-full text-xs border">Keranjang
     <span id="cartBadge2" class="absolute -top-1 -right-1 bg-pink-600 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center hidden"></span>
   </button>
-  <button id="btnAdmin2" class="ripple bg-white px-3 py-1 rounded-full text-xs border">Admin</button>
+  <button id="btnAdmin2" class="bg-white px-3 py-1 rounded-full text-xs border">Admin</button>
 </div>
 
 <!-- HERO -->
 <section id="home" class="pastel-mint">
-  <div class="max-w-6xl mx-auto px-4 py-16 grid md:grid-cols-2 items-center gap-6 fade-in-up show">
+  <div class="max-w-6xl mx-auto px-4 py-16 grid md:grid-cols-2 items-center gap-6 fade-in">
     <div>
       <h1 id="heroTitle" class="font-heading text-4xl md:text-5xl text-pink-700 leading-tight"></h1>
       <p id="heroSubtitle" class="mt-4 text-gray-700"></p>
@@ -160,25 +152,25 @@
   </div>
 </section>
 
-<!-- CARA PESAN (PINDAH KE ATAS) -->
+<!-- PRODUK -->
+<section id="produk" class="py-12 px-4 max-w-6xl mx-auto">
+  <h2 class="font-heading text-3xl font-bold text-center mb-8 text-pink-700 fade-in">Menu Kue</h2>
+  <div id="produkGrid" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 fade-in"></div>
+</section>
+
+<!-- CARA PESAN -->
 <section id="cara" class="py-12 px-4 max-w-4xl mx-auto">
-  <h2 class="font-heading text-3xl font-bold text-center mb-8 text-pink-700 fade-in-up">Cara Pemesanan</h2>
-  <div class="grid md:grid-cols-3 gap-6 text-center fade-in-up">
+  <h2 class="font-heading text-3xl font-bold text-center mb-8 text-pink-700 fade-in">Cara Pemesanan</h2>
+  <div class="grid md:grid-cols-3 gap-6 text-center fade-in">
     <div class="pastel-lav p-6 rounded-xl shadow-pastel"><div class="text-3xl mb-2">1️⃣</div><p>Pilih gambar kue favorit Anda</p></div>
     <div class="pastel-mint p-6 rounded-xl shadow-pastel"><div class="text-3xl mb-2">2️⃣</div><p>Klik tombol <b>Masukkan ke Keranjang</b> atau langsung <b>Pesan</b></p></div>
     <div class="pastel-pink p-6 rounded-xl shadow-pastel"><div class="text-3xl mb-2">3️⃣</div><p>Kirim detail & tunggu konfirmasi via WhatsApp</p></div>
   </div>
 </section>
 
-<!-- PRODUK (TURUN KE BAWAH) -->
-<section id="produk" class="py-12 px-4 max-w-6xl mx-auto">
-  <h2 class="font-heading text-3xl font-bold text-center mb-8 text-pink-700 fade-in-up">Menu Kue</h2>
-  <div id="produkGrid" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
-</section>
-
 <!-- FOOTER -->
 <footer id="kontak" class="pastel-pink mt-12">
-  <div class="max-w-6xl mx-auto px-4 py-8 text-sm text-center text-gray-700 space-y-2 fade-in-up">
+  <div class="max-w-6xl mx-auto px-4 py-8 text-sm text-center text-gray-700 space-y-2 fade-in">
     <p id="alamatToko"></p>
     <p>
       <a id="igLink" class="text-pink-700 font-medium" href="" target="_blank">Instagram</a> |
@@ -191,14 +183,17 @@
 
 <!-- MODAL UKURAN -->
 <div id="modalUkuran" class="fixed inset-0 bg-black bg-opacity-40 hidden place-items-center z-50">
-  <div class="modal-scale bg-white rounded-2xl w-[90%] max-w-2xl p-4 md:p-6 shadow-xl">
+  <div class="bg-white rounded-2xl w-[90%] max-w-2xl p-4 md:p-6 shadow-xl">
     <div class="flex justify-between items-center mb-3">
       <h3 id="modalNamaKue" class="font-heading text-lg font-bold text-pink-700">Pilih Ukuran</h3>
       <button id="closeModal" class="text-2xl leading-none">&times;</button>
     </div>
     <div class="swiper mySwiper mb-4"><div class="swiper-wrapper" id="swiperWrapper"></div><div class="swiper-button-next"></div><div class="swiper-button-prev"></div><div class="swiper-pagination"></div></div>
+    
+    <!-- INPUT NAMA PEMESAN -->
     <label class="block mb-2 text-sm font-medium text-gray-700">Nama Pemesan</label>
     <input id="namaPemesan" type="text" placeholder="Tulis nama Anda" class="w-full border rounded-lg px-3 py-2 mb-4">
+
     <div class="grid grid-cols-2 md:grid-cols-5 gap-3 mb-4">
       <label class="cursor-pointer"><input type="radio" name="ukuran" value="Bento" class="mr-2" checked>Bento</label>
       <label class="cursor-pointer"><input type="radio" name="ukuran" value="16 cm" class="mr-2">16 cm</label>
@@ -210,7 +205,7 @@
       Bento = Rp 30.000 – 35.000<br>16 cm = Rp 40.000 – 50.000<br>18 cm = Rp 60.000 – 75.000<br>20 cm = Rp 80.000 – 100.000<br>22 cm = Rp 100.000 – 200.000
     </div>
     <div class="flex gap-3">
-      <button id="btnPesanModal" class="ripple flex-1 bg-pink-600 text-white py-3 rounded-xl hover:bg-pink-700">Pesan via WhatsApp</button>
+      <button id="btnPesanModal" class="flex-1 bg-pink-600 text-white py-3 rounded-xl hover:bg-pink-700">Pesan via WhatsApp</button>
       <button id="btnBatalModal" class="flex-1 bg-gray-200 text-gray-800 py-3 rounded-xl hover:bg-gray-300">Batal</button>
     </div>
   </div>
@@ -239,7 +234,7 @@
   <label class="block mb-1 font-medium">WhatsApp (62xxx)</label><input id="inpWA" class="w-full border rounded px-2 py-1 mb-3">
   <label class="block mb-1 font-medium">Produk (satu per baris: nama|url1,url2,...)</label><textarea id="inpProduk" class="w-full border rounded px-2 py-1 mb-3 text-xs" rows="4"></textarea>
   <div class="flex gap-2">
-    <button id="btnSimpanAdmin" class="ripple bg-pink-600 text-white px-3 py-1 rounded hover:bg-pink-700">Simpan Semua</button>
+    <button id="btnSimpanAdmin" class="bg-pink-600 text-white px-3 py-1 rounded hover:bg-pink-700">Simpan Semua</button>
     <button id="btnResetAdmin" class="bg-gray-200 text-gray-800 px-3 py-1 rounded hover:bg-gray-300">Reset</button>
   </div>
 </div>
@@ -266,21 +261,17 @@ applyData();
 function renderProduk(){
   const grid = document.getElementById('produkGrid');
   grid.innerHTML = data.produk.map((k,i)=>`
-    <div class="card-hover bg-white rounded-xl shadow-pastel overflow-hidden flex flex-col fade-in-up">
+    <div class="bg-white rounded-xl shadow-pastel overflow-hidden flex flex-col fade-in">
       <img src="${k.gambar[0]}" class="w-full h-48 object-cover">
       <div class="p-4 flex-1 flex flex-col">
         <h3 class="font-bold text-pink-700 mb-2">${k.nama}</h3>
         <div class="flex gap-2 mt-auto">
-          <button data-idx="${i}" class="btnCart ripple flex-1 bg-gray-200 text-gray-800 py-2 rounded-lg hover:bg-gray-300 text-xs">+ Keranjang</button>
-          <button data-idx="${i}" class="btnPesan ripple flex-1 bg-pink-600 text-white py-2 rounded-lg hover:bg-pink-700">Pesan</button>
+          <button data-idx="${i}" class="btnCart flex-1 bg-gray-200 text-gray-800 py-2 rounded-lg hover:bg-gray-300 text-xs">+ Keranjang</button>
+          <button data-idx="${i}" class="btnPesan flex-1 bg-pink-600 text-white py-2 rounded-lg hover:bg-pink-700">Pesan</button>
         </div>
       </div>
     </div>
   `).join('');
-  // stagger
-  document.querySelectorAll('#produkGrid .fade-in-up').forEach((el,i)=>{
-    setTimeout(()=>el.classList.add('show'),i*100);
-  });
 }
 
 let swiper, idxActive;
@@ -289,10 +280,8 @@ function bukaModal(idx){
   const k = data.produk[idx];
   document.getElementById('modalNamaKue').textContent = k.nama;
   document.getElementById('swiperWrapper').innerHTML = k.gambar.map(g=>`<div class="swiper-slide"><img src="${g}" alt="img"></div>`).join('');
-  const modal=document.getElementById('modalUkuran');
-  modal.classList.remove('hidden');
-  modal.classList.add('grid');
-  setTimeout(()=>modal.querySelector('.modal-scale').classList.add('show'),10);
+  document.getElementById('modalUkuran').classList.remove('hidden');
+  document.getElementById('modalUkuran').classList.add('grid');
   if(swiper) swiper.destroy(true,true);
   swiper = new Swiper(".mySwiper",{
     pagination:{el:".swiper-pagination",clickable:true},
@@ -301,9 +290,8 @@ function bukaModal(idx){
   });
 }
 function tutupModal(){
-  const modal=document.getElementById('modalUkuran');
-  modal.querySelector('.modal-scale').classList.remove('show');
-  setTimeout(()=>{ modal.classList.add('hidden'); modal.classList.remove('grid'); },200);
+  document.getElementById('modalUkuran').classList.add('hidden');
+  document.getElementById('modalUkuran').classList.remove('grid');
 }
 document.addEventListener('click',e=>{
   if(e.target.classList.contains('btnPesan')) bukaModal(+e.target.dataset.idx);
